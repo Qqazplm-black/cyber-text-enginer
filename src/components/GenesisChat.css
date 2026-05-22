@@ -1,0 +1,545 @@
+/* ── Claude.ai-style Genesis Chat ── */
+
+.genesis-chat {
+  display: flex;
+  flex-direction: column;
+  height: 100svh;
+  max-height: 100svh;
+  text-align: left;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* ── Header ── */
+.genesis-chat__header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.625rem 1.25rem;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg);
+  z-index: 10;
+  max-width: 720px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.genesis-chat__header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.genesis-chat__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.genesis-chat__brand {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0;
+}
+
+.typewriter-cursor {
+  color: var(--accent);
+  animation: genesis-blink 0.8s step-end infinite;
+}
+
+@keyframes genesis-blink {
+  50% { opacity: 0; }
+}
+
+/* ── Share ── */
+.genesis-chat__share {
+  margin: 0.75rem 0 1rem;
+}
+
+.genesis-chat__share-label {
+  margin: 0 0 0.35rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.genesis-chat__share-input {
+  width: 100%;
+  font: inherit;
+  font-size: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text-h);
+  margin-bottom: 0.5rem;
+  box-sizing: border-box;
+}
+
+.genesis-chat__share-copy {
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  padding: 0.4375rem 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.15s;
+}
+
+.genesis-chat__share-copy:hover {
+  border-color: var(--accent-border);
+  color: var(--accent);
+}
+
+.genesis-chat__share-copy--footer {
+  margin-bottom: 0.5rem;
+}
+
+/* ── Key Toggle ── */
+.genesis-chat__key-toggle {
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text);
+  background: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  padding: 0.375rem 0.625rem;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s;
+}
+
+.genesis-chat__key-toggle:hover:not(:disabled) {
+  color: var(--accent);
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+}
+
+.genesis-chat__key-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Body ── */
+.genesis-chat__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 0 1.25rem;
+}
+
+.genesis-chat__hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.genesis-chat__welcome {
+  font-size: 32px;
+  font-weight: 400;
+  color: var(--text-h);
+  letter-spacing: 0.02em;
+  margin: 0 0 0.75rem;
+  line-height: 1.3;
+}
+
+.genesis-chat__welcome-sub {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0 0 1.5rem;
+  font-weight: 400;
+}
+
+/* ── Thread ── */
+.genesis-chat__thread {
+  list-style: none;
+  margin: 0;
+  padding: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  flex: 1;
+}
+
+.genesis-chat__row {
+  display: flex;
+  width: 100%;
+}
+
+.genesis-chat__row--user {
+  justify-content: flex-end;
+}
+
+.genesis-chat__row--assistant {
+  justify-content: flex-start;
+}
+
+.genesis-chat__row--complete {
+  justify-content: center;
+}
+
+/* ── Bubbles ── */
+.genesis-chat__bubble {
+  max-width: min(85%, 22rem);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+}
+
+.genesis-chat__bubble--user {
+  background: var(--accent);
+  border-color: transparent;
+  border-bottom-right-radius: 4px;
+}
+
+.genesis-chat__bubble--user .genesis-chat__bubble-label,
+.genesis-chat__bubble--user p {
+  color: #fff;
+}
+
+.genesis-chat__bubble--user .genesis-chat__bubble-label {
+  opacity: 0.8;
+}
+
+.genesis-chat__bubble--assistant {
+  background: var(--bg-elevated);
+  border-bottom-left-radius: 4px;
+}
+
+.genesis-chat__bubble-label {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.genesis-chat__bubble p {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--text-h);
+  white-space: pre-wrap;
+}
+
+.genesis-chat__typing {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ── Result ── */
+.genesis-chat__result {
+  width: 100%;
+  max-width: 100%;
+  padding: 1.25rem;
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius-lg);
+  background: var(--accent-bg);
+  box-sizing: border-box;
+}
+
+.genesis-chat__complete-badge {
+  display: inline-block;
+  margin: 0 0 0.75rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  background: var(--bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 999px;
+}
+
+.genesis-chat__rules-title {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.genesis-chat__start-game {
+  display: block;
+  width: 100%;
+  margin-top: 1rem;
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.genesis-chat__start-game:hover {
+  background: var(--accent-hover);
+}
+
+.genesis-chat__start-game--footer {
+  margin-top: 0;
+}
+
+.genesis-chat__footer-complete {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.genesis-chat__rules {
+  margin: 0;
+  padding: 0.875rem;
+  font-family: var(--mono);
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--text-h);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+.genesis-chat__scroll-anchor {
+  height: 1px;
+  list-style: none;
+}
+
+/* ── Error ── */
+.genesis-chat__error-wrap {
+  margin: 0 0 0.75rem;
+  padding: 0.75rem 1rem;
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.genesis-chat__error {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #dc2626;
+}
+
+.genesis-chat__retry {
+  margin-top: 0.5rem;
+  font: inherit;
+  font-size: 0.8125rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.genesis-chat__retry:hover {
+  border-color: var(--accent-border);
+}
+
+@media (prefers-color-scheme: dark) {
+  .genesis-chat__error-wrap {
+    background: rgba(248, 113, 113, 0.1);
+  }
+  .genesis-chat__error {
+    color: #fca5a5;
+  }
+}
+
+/* ── Footer ── */
+.genesis-chat__footer {
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0.75rem 1.25rem calc(0.75rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--border-light);
+  background: var(--bg);
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+.genesis-chat__footer-done {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.genesis-chat__form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+/* ── Ghost Input (Claude.ai style) ── */
+.genesis-chat__input {
+  flex: 1;
+  font: inherit;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  padding: 0.875rem 1.125rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--bg-subtle);
+  color: var(--text-h);
+  resize: none;
+  min-height: 3rem;
+  max-height: 8rem;
+  transition: background 0.15s, box-shadow 0.15s;
+  outline: none;
+}
+
+.genesis-chat__input:focus {
+  background: var(--bg);
+  box-shadow: 0 -2px 0 0 var(--accent) inset;
+}
+
+.genesis-chat__input::placeholder {
+  color: var(--text-muted);
+}
+
+.genesis-chat__input:disabled {
+  opacity: 0.5;
+}
+
+.genesis-chat__submit {
+  flex-shrink: 0;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.genesis-chat__submit:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+.genesis-chat__submit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Input Wrap (for quick-toggle button inside) ── */
+.genesis-chat__input-wrap {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+  border-radius: var(--radius-md);
+  background: var(--bg-subtle);
+  transition: background 0.15s, box-shadow 0.15s;
+  overflow: hidden;
+}
+
+.genesis-chat__input-wrap:focus-within {
+  background: var(--bg);
+  box-shadow: 0 -2px 0 0 var(--accent) inset;
+}
+
+.genesis-chat__input-wrap .genesis-chat__input {
+  flex: 1;
+  border: none;
+  border-radius: 0;
+  min-height: 3rem;
+  max-height: 8rem;
+  background: transparent;
+}
+
+.genesis-chat__input-wrap .genesis-chat__input:focus {
+  outline: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+/* ── Quick Toggle Button ── */
+.genesis-chat__quick-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+  margin: 0.375rem 0.375rem 0.375rem 0;
+  align-self: flex-end;
+}
+
+.genesis-chat__quick-toggle:hover:not(:disabled) {
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.genesis-chat__quick-toggle--active {
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.genesis-chat__quick-toggle:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ── Quick Commands Popup ── */
+.genesis-chat__quick-commands {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-top: 0.625rem;
+  padding-top: 0.625rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.genesis-chat__quick-cmd {
+  font: inherit;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.625rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-subtle);
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.genesis-chat__quick-cmd:hover {
+  border-color: var(--accent-border);
+  color: var(--accent);
+  background: var(--accent-bg);
+}

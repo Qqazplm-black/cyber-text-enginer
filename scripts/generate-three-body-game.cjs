@@ -1,0 +1,944 @@
+// Script to generate the Three-Body Problem game JSON
+// Run with: node scripts/generate-three-body-game.js
+
+const fs = require('fs');
+const path = require('path');
+
+const game = {
+  title: "三体：黑暗森林",
+  intro: "公元202X年，全球顶尖的物理学家接连自杀，他们留下的遗书都写着同样一句话：「物理学不存在了。」你是一名国家安全局的特工，被派去调查这一系列离奇事件。你的调查将带你走进一个远超想象的宇宙真相——三体文明的存在、智子的监控、以及宇宙中最残酷的黑暗森林法则。在这场关乎人类命运的博弈中，每一个选择都可能决定两个文明的生死。",
+  startScene: "opening",
+  stats: [
+    { key: "hp", label: "生命值", initial: 100, max: 100 },
+    { key: "sanity", label: "理智值", initial: 100, max: 100 },
+    { key: "trust", label: "信任度", initial: 50, max: 100 },
+    { key: "knowledge", label: "真相认知", initial: 0, max: 100 }
+  ],
+  scenes: {}
+};
+
+// Helper to create a scene
+function scene(text, choices) {
+  return { text, choices };
+}
+
+function choice(label, next, effects) {
+  return { label, next, effects };
+}
+
+// ============ SCENES ============
+
+game.scenes.opening = scene(
+  "深夜，你站在国家量子物理研究所的大门前。路灯在雾气中晕开一圈昏黄的光晕。三天前，这里最年轻的院士杨冬在她的实验室里结束了自己的生命。她是最近三个月里第七个自杀的顶尖物理学家。你的上级递给你一个密封的档案袋，里面只有一张照片——杨冬实验台上最后一行字：「物理学不存在了。」空气中弥漫着一种说不清的压抑感，仿佛有什么东西在暗处注视着这一切。",
+  [
+    choice("进入实验室调查现场", "lab_investigation", { knowledge: 5, sanity: -5 }),
+    choice("先去拜访杨冬的母亲叶文洁", "ye_wenjie_meeting", { trust: 5, knowledge: 10 }),
+    choice("查阅所有自杀科学家的档案", "archive_room", { knowledge: 10, sanity: -10 })
+  ]
+);
+
+game.scenes.lab_investigation = scene(
+  "实验室里一切如常，仿佛主人只是暂时离开。但当你走近实验台时，一股寒意从脊背升起——粒子加速器的数据屏幕上，显示着完全随机、毫无规律的实验结果。旁边放着一本摊开的笔记本，上面密密麻麻写满了计算过程，最后一行字迹颤抖而扭曲：「每一次实验，结果都不同。物理规律在变。有人在看着我们。」你注意到墙角有一个摄像头，指示灯正以微弱的频率闪烁——但它不属于实验室的安保系统。",
+  [
+    choice("追踪那个神秘摄像头", "mysterious_camera", { knowledge: 10, hp: -5 }),
+    choice("仔细研究笔记本上的计算", "research_notes", { knowledge: 15, sanity: -10 }),
+    choice("联系技术组分析实验数据异常", "contact_tech_team", { trust: 10, knowledge: 5 })
+  ]
+);
+
+game.scenes.ye_wenjie_meeting = scene(
+  "叶文洁住在一栋老旧的居民楼里。开门时，你看到一位气质沉静的老妇人，她的眼神深邃得仿佛能看穿时空。房间里堆满了天文物理学的书籍，墙上挂着一幅巨大的星图。她给你倒了一杯茶，平静地说：「你终于来了。我知道你会来。」她的语气中带着一种看透一切的悲悯。「杨冬是我的女儿，她的死不是意外。她发现了真相——一个足以让任何物理学家崩溃的真相。」",
+  [
+    choice("追问她所说的真相是什么", "truth_revelation", { knowledge: 20, sanity: -15 }),
+    choice("问她为什么知道我会来", "suspicious_question", { trust: -5, knowledge: 5 }),
+    choice("出示杨冬的遗书照片", "show_photo", { trust: 10, knowledge: 10 })
+  ]
+);
+
+game.scenes.archive_room = scene(
+  "档案室弥漫着旧纸张和灰尘的气味。你打开七份厚厚的档案，开始逐一比对。一个令人不安的模式浮现出来：所有自杀的科学家都在死前一个月内参与过同一个项目——「粒子对撞异常现象研究」。他们的实验数据都指向同一个结论：地球上的粒子加速器实验出现了无法解释的干扰，物理常数似乎在随机波动。更诡异的是，七个人的研究笔记中，都反复出现同一个词——「智子」。",
+  [
+    choice("深入调查「智子」的含义", "sophon_research", { knowledge: 20, sanity: -15 }),
+    choice("寻找这些科学家的共同联系人", "find_common_contact", { trust: 10, knowledge: 10 }),
+    choice("向上级汇报你的发现", "report_to_superior", { trust: 15, knowledge: 5 })
+  ]
+);
+
+game.scenes.mysterious_camera = scene(
+  "你顺着摄像头的线缆追踪，发现它连接到一个隐藏在网络深处的服务器。技术组破解后发现，这个摄像头一直在向一个未知地址传输数据。更令人震惊的是，信号追踪显示接收端不在地球上——它在太空中，以接近光速的速度向宇宙深处飞去。你的脑海中闪过一个可怕的念头：有什么东西在实时监控着地球上的一切。",
+  [
+    choice("将这个发现报告给上级", "report_discovery", { trust: 15, knowledge: 15 }),
+    choice("秘密联系叶文洁寻求解释", "contact_ye_again", { knowledge: 20, trust: -10 }),
+    choice("尝试追踪信号的最终目的地", "trace_signal", { knowledge: 25, sanity: -20 })
+  ]
+);
+
+game.scenes.research_notes = scene(
+  "你花了整整一夜研究杨冬的笔记。她的数学功底令人叹为观止，但越往后看，你的心越沉。她证明了地球上的物理规律正在被某种外部力量干扰——不是自然现象，而是智能干预。在笔记的最后一页，她画了一个简单的示意图：一个微观粒子被展开成二维平面，上面蚀刻着复杂的电路。旁边写着：「智子——三体文明的锁链。」你的手开始颤抖。",
+  [
+    choice("搜索关于「三体」的信息", "search_three_body", { knowledge: 20, sanity: -10 }),
+    choice("立刻联系军方", "contact_military", { trust: 10, knowledge: 5 }),
+    choice("去找叶文洁对质", "confront_ye", { knowledge: 15, trust: -5 })
+  ]
+);
+
+game.scenes.contact_tech_team = scene(
+  "技术组组长王磊是个三十出头的天才程序员。他调出最近三个月的全球粒子加速器数据，用红色标记出异常点。屏幕上密密麻麻的红点让你倒吸一口凉气——全球所有的加速器，无论大小，都在同一时间开始出现随机性干扰。王磊低声说：「这不是设备故障。有人——或者有什么东西——在干扰基础物理实验。如果这种干扰持续下去，人类的基础物理学将永远停滞。」",
+  [
+    choice("建议成立秘密研究小组", "secret_research_team", { trust: 15, knowledge: 10 }),
+    choice("追问王磊是否知道更多内情", "question_wang_lei", { knowledge: 15, trust: 5 }),
+    choice("查看王磊提供的所有数据", "analyze_all_data", { knowledge: 20, sanity: -15 })
+  ]
+);
+
+game.scenes.truth_revelation = scene(
+  "叶文洁沉默了很久，然后缓缓开口：「四光年外，有一个由三颗恒星组成的星系。那里有一个文明——三体文明。他们的世界正在毁灭，所以他们要寻找新的家园。地球是他们的目标。」她的声音平静得可怕。「三十年前，我在红岸基地工作时，向宇宙发出了信号。他们收到了。我收到了他们的警告——『不要回答』。但我回答了。我暴露了地球的位置。」她直视着你的眼睛，「现在，他们的舰队已经在路上。四百年后，他们将到达地球。而他们的智子——一种微观超级计算机——已经锁死了人类的物理学。」",
+  [
+    choice("震惊地质问她为什么要这么做", "why_did_you_do_this", { sanity: -20, knowledge: 10 }),
+    choice("询问如何对抗三体文明", "how_to_fight", { knowledge: 20, trust: 10 }),
+    choice("怀疑她的话，认为她精神有问题", "doubt_ye", { trust: -15, knowledge: 5 })
+  ]
+);
+
+game.scenes.suspicious_question = scene(
+  "叶文洁微微一笑，那笑容中带着苦涩和智慧：「因为我知道，当物理学家们开始死去的时候，总会有人来寻找答案。我女儿的死不是结束，而是开始。」她站起身，走到窗前，望着夜空。「你看那些星星，多么安静。但你知道吗？宇宙其实是一座黑暗森林。每一个文明都是带枪的猎手。谁先暴露位置，谁就会先被消灭。」",
+  [
+    choice("请她详细解释黑暗森林理论", "dark_forest_explanation", { knowledge: 20, sanity: -10 }),
+    choice("问她与科学家自杀案的关系", "connection_to_deaths", { trust: 5, knowledge: 15 }),
+    choice("认为她在故弄玄虚，准备离开", "leave_skeptical", { trust: -10, knowledge: 0 })
+  ]
+);
+
+game.scenes.show_photo = scene(
+  "叶文洁看到照片上的字迹时，手指微微颤抖了一下，但很快恢复了平静。她轻声说：「这是杨冬的笔迹。她是个聪明的孩子，比我聪明得多。她发现了智子的存在——三体文明用来锁死地球科技的超级计算机。一个质子，被展开到二维，蚀刻成智能电路，然后缩回微观维度。它可以干扰地球上任何粒子加速器的实验结果。」她顿了顿，「物理学确实不存在了——至少，在智子的干扰下，人类永远无法通过实验发现新的物理规律。」",
+  [
+    choice("追问智子的原理和应对方法", "sophon_details", { knowledge: 25, sanity: -10 }),
+    choice("问她是否属于某个组织", "ask_about_eto", { trust: 10, knowledge: 15 }),
+    choice("决定逮捕她", "arrest_ye", { trust: -20, knowledge: 5 })
+  ]
+);
+
+game.scenes.sophon_research = scene(
+  "你在绝密数据库中搜索「智子」这个词，结果让你震惊。一份标注为「最高机密」的文件显示，三年前中国就曾探测到异常的高能粒子信号。信号源来自半人马座方向。更令人不安的是，文件提到了一种理论：高维文明可以将质子改造成超级计算机，用于监控和干扰低维文明。你突然意识到，你正在调查的不仅仅是一系列自杀案——你触碰到了宇宙中最深的秘密。",
+  [
+    choice("深入挖掘这份机密文件", "deep_dive_classified", { knowledge: 25, sanity: -20 }),
+    choice("寻找文件的撰写者", "find_file_author", { trust: 10, knowledge: 10 }),
+    choice("将文件内容报告给联合国", "report_to_un", { trust: 15, knowledge: 5 })
+  ]
+);
+
+game.scenes.find_common_contact = scene(
+  "通过交叉比对七位科学家的通讯记录和社交网络，你发现了一个共同的名字——申玉菲。她是一位理论物理学家，也是某国际科学组织的成员。所有自杀的科学家都在死前一周内与她有过联系。你调出申玉菲的资料，发现她最近频繁出入一个名为「科学边界」的学术组织。这个组织的宗旨听起来有些奇怪：「探索科学之外的真理。」",
+  [
+    choice("潜入「科学边界」组织", "infiltrate_frontier", { knowledge: 20, hp: -10 }),
+    choice("直接传唤申玉菲", "summon_shen", { trust: 10, knowledge: 10 }),
+    choice("监视申玉菲的行踪", "tail_shen", { knowledge: 15, sanity: -5 })
+  ]
+);
+
+game.scenes.report_to_superior = scene(
+  "你的上级——国家安全局副局长常伟思——听完你的汇报后沉默了很长时间。他打开墙上的保险柜，取出一个标有「红岸」字样的密封档案袋。「我本来希望你不会走到这一步。」他沉重地说，「三十年前，有一个叫红岸的秘密基地。他们做的事情，比你想象的更疯狂。」他递给你档案袋，「看完这些，你会明白一切。但我要提醒你——有些真相，知道之后就无法回头了。」",
+  [
+    choice("打开红岸档案", "red_coast_files", { knowledge: 30, sanity: -20 }),
+    choice("问常伟思还知道什么", "ask_chang_more", { trust: 15, knowledge: 10 }),
+    choice("拒绝看档案，认为太危险", "refuse_files", { trust: -10, knowledge: 0 })
+  ]
+);
+
+game.scenes.report_discovery = scene(
+  "常伟思听完你的报告后，脸色变得异常凝重。他打开一个加密通讯器，说了一串你听不懂的代码。十分钟后，三位穿黑色西装的人走进了办公室。他们是「行星防御理事会」的成员——一个你从未听说过的国际组织。其中一位白发老者对你说：「特工，你发现的东西比你知道的更严重。欢迎来到真实的世界。从这一刻起，你的生活将永远改变。」",
+  [
+    choice("接受加入行星防御理事会", "join_pdc", { knowledge: 20, trust: 20 }),
+    choice("要求更多证据再决定", "demand_evidence", { trust: 5, knowledge: 10 }),
+    choice("拒绝合作，认为这是阴谋", "refuse_cooperation", { trust: -20, knowledge: 5 })
+  ]
+);
+
+game.scenes.contact_ye_again = scene(
+  "你再次来到叶文洁的住所。这次她没有惊讶，仿佛一直在等你。她给你看了一样东西——一个古老的录音机。她按下播放键，一个沙哑的声音从扬声器中传出，说着一种你听不懂的语言，但那种语调中充满了绝望和警告。叶文洁翻译道：「这是三体监听员1379号的回信。他说：『不要回答！不要回答！不要回答！这个世界收到了你们的信息。你们的文明将遭受灭顶之灾。我是这个世界的和平主义者，我警告你们：不要回答！』」",
+  [
+    choice("问她为什么无视警告", "why_ignored_warning", { knowledge: 15, sanity: -15 }),
+    choice("请求复制这份录音", "copy_recording", { trust: 10, knowledge: 15 }),
+    choice("问她三体文明的具体情况", "ask_about_trisolaris", { knowledge: 20, sanity: -10 })
+  ]
+);
+
+game.scenes.trace_signal = scene(
+  "你调用国家天文台的射电望远镜，试图追踪那个神秘信号的去向。数据分析结果让你毛骨悚然——信号的目的地是半人马座α星，距离地球约4.2光年。更可怕的是，当你反向追踪时，发现同样的信号源也在向地球发送信息。这意味着——对方也在观察我们。你突然感到一阵眩晕，仿佛站在深渊边缘，凝视着黑暗中一双同样在凝视你的眼睛。",
+  [
+    choice("尝试解码来自半人马座的信号", "decode_signal", { knowledge: 30, sanity: -25 }),
+    choice("将发现通报国际天文联合会", "notify_iau", { trust: 10, knowledge: 10 }),
+    choice("保持沉默，秘密调查", "keep_secret", { knowledge: 15, trust: -10 })
+  ]
+);
+
+game.scenes.search_three_body = scene(
+  "你在网络上搜索「三体」，发现了一个神秘的VR游戏，名字就叫《三体》。游戏介绍写着：「体验一个在三颗太阳下挣扎求生的文明。」你下载并登录了游戏。画面亮起时，你发现自己站在一片荒芜的大地上，天空中三个太阳以无法预测的轨迹运行。大地时而燃烧，时而冻结。你看到一座由巨大石碑组成的城市，石碑上刻满了数学公式和物理定律。一个声音在你脑海中响起：「欢迎来到三体世界。在这里，生存是文明的第一需要。」",
+  [
+    choice("深入探索三体游戏", "explore_game", { knowledge: 25, sanity: -15 }),
+    choice("调查游戏的开发者", "find_game_dev", { trust: 10, knowledge: 10 }),
+    choice("退出游戏，报告上级", "exit_report", { trust: 15, knowledge: 5 })
+  ]
+);
+
+game.scenes.confront_ye = scene(
+  "你直接来到叶文洁面前，将杨冬的笔记放在桌上。「你知道这一切，对不对？」你的声音因愤怒而颤抖。叶文洁平静地看着你，仿佛早已预料到这一刻。「是的，我知道。而且我知道的比你更多。」她缓缓站起身，「三十年前，我向宇宙发出了信号。我收到了回复——一个来自四光年外的文明的回复。他们警告我不要回答。但我回答了。」她的眼中闪过一丝痛苦，「因为我看到了人类的丑恶。我以为一个更高级的文明会拯救我们。但我错了。我引来的不是救世主，而是猎人。」",
+  [
+    choice("问她如何弥补自己的过错", "how_to_atone", { knowledge: 15, trust: 10 }),
+    choice("告诉她现在还有机会对抗", "chance_to_fight", { trust: 15, knowledge: 10 }),
+    choice("愤怒地逮捕她", "arrest_ye_final", { trust: -20, sanity: -10 })
+  ]
+);
+
+game.scenes.contact_military = scene(
+  "你联系了军方的一位老朋友——张将军。他听完你的汇报后，沉默了很久，然后说：「你描述的情况，和我们太空监测部门最近发现的一个异常现象吻合。半人马座方向，有一群不明物体正在向地球移动。我们原本以为是彗星，但它们的轨道太整齐了——那是舰队。」你的血液仿佛凝固了。舰队。外星人的舰队。正在向地球驶来。",
+  [
+    choice("请求调阅军方所有相关数据", "military_data", { knowledge: 25, sanity: -15 }),
+    choice("建议召开紧急国际会议", "emergency_summit", { trust: 20, knowledge: 10 }),
+    choice("问舰队还有多久到达", "fleet_eta", { knowledge: 10, sanity: -20 })
+  ]
+);
+
+game.scenes.secret_research_team = scene(
+  "你秘密组建了一个跨学科研究小组，包括物理学家、计算机科学家和密码学家。你们的任务是：在智子的监控下，找到突破科技封锁的方法。王磊提出了一个大胆的想法：「既然智子可以干扰粒子加速器，那我们能不能反过来利用它？如果我们故意让智子看到错误的信息……」这个想法让你眼前一亮——也许对抗智子的关键，不在于物理，而在于信息。",
+  [
+    choice("支持王磊的欺骗计划", "deception_plan", { knowledge: 20, trust: 15 }),
+    choice("建议研究智子的通信原理", "study_sophon_comms", { knowledge: 25, sanity: -10 }),
+    choice("认为应该公开真相，全球合作", "global_cooperation", { trust: 20, knowledge: 10 })
+  ]
+);
+
+game.scenes.question_wang_lei = scene(
+  "王磊犹豫了一下，然后压低声音说：「有件事我一直没敢写在报告里。我追踪到了干扰信号的模式——它不是随机的。它是有规律的。就像……就像有人在读取我们的实验设计，然后故意给出错误的结果。」他打开一个加密文件，「你看这个。我把所有异常数据按时间排列，发现了一个模式——这个模式对应着一种我们从未见过的数学结构。这不是故障，这是智能行为。」",
+  [
+    choice("深入研究这个数学模式", "math_pattern", { knowledge: 30, sanity: -15 }),
+    choice("问王磊是否知道其他知情者", "other_insiders", { trust: 10, knowledge: 10 }),
+    choice("建议将数据提交给国际科学界", "share_data", { trust: 15, knowledge: 5 })
+  ]
+);
+
+game.scenes.analyze_all_data = scene(
+  "你花了三天三夜分析王磊提供的所有数据。当你终于抬起头时，窗外的阳光刺痛了你的眼睛。你发现了真相——一个令人窒息的真相。全球粒子加速器的异常干扰，其复杂程度远超任何自然现象。这是智能设计。有人在微观层面操纵着物理规律。你突然理解了杨冬的绝望——当一个物理学家发现宇宙的规律可以被随意改写时，她的整个世界就崩塌了。",
+  [
+    choice("写一份完整的真相报告", "write_report", { knowledge: 25, sanity: -20 }),
+    choice("寻找其他可能发现真相的人", "find_others", { trust: 15, knowledge: 10 }),
+    choice("决定公开所有发现", "go_public", { trust: 20, knowledge: 5 })
+  ]
+);
+
+game.scenes.why_did_you_do_this = scene(
+  "叶文洁的眼中第一次出现了波动——那是深不见底的痛苦。「你经历过文革吗？你见过自己的父亲被批斗致死，母亲为了自保而揭发他吗？你见过人性中最黑暗的一面吗？」她的声音颤抖着，「我向宇宙发出信号，是因为我对人类绝望了。我以为一个更高级的文明会带来理性和秩序。但我错了。三体文明同样残酷，同样自私。宇宙中没有救世主，只有永恒的生存竞争。」她低下头，「我背叛了人类。我永远无法原谅自己。」",
+  [
+    choice("告诉她现在还有机会弥补", "chance_for_redemption", { trust: 20, knowledge: 10 }),
+    choice("问她三体文明的具体计划", "trisolaran_plan", { knowledge: 25, sanity: -10 }),
+    choice("沉默地离开", "silent_leave", { trust: -5, knowledge: 5 })
+  ]
+);
+
+game.scenes.how_to_fight = scene(
+  "叶文洁的表情变得严肃起来：「对抗三体文明的方法只有一个——黑暗森林威慑。」她解释道：「宇宙是一座黑暗森林。每一个文明都是带枪的猎手。如果三体文明的位置暴露给更强大的文明，他们也会被毁灭。这就是我们的筹码。」她的眼中闪过一丝精光，「但要做到这一点，我们需要一个能够向全宇宙广播三体坐标的系统。一个一旦启动就无法停止的系统。这就是——黑暗森林威慑。」",
+  [
+    choice("支持黑暗森林威慑计划", "support_deterrence", { knowledge: 25, trust: 15 }),
+    choice("质疑这个计划的可行性", "question_deterrence", { trust: 5, knowledge: 10 }),
+    choice("询问如何建立威慑系统", "build_deterrence", { knowledge: 20, sanity: -10 })
+  ]
+);
+
+game.scenes.doubt_ye = scene(
+  "你觉得叶文洁的话太过荒谬，决定离开。但当你走到门口时，她叫住了你：「等等。在你走之前，看看这个。」她递给你一个平板电脑，屏幕上显示着一段视频——那是杨冬死前最后录制的影像。视频中，杨冬泪流满面地说：「妈妈，我看到了。智子就在那里。它看着我们每一个人。物理学不存在了，因为有人不让它存在。对不起，我撑不住了。」你的脚步停住了。",
+  [
+    choice("留下来继续听叶文洁的解释", "stay_and_listen", { knowledge: 20, sanity: -15 }),
+    choice("带走视频作为证据", "take_video_evidence", { trust: 10, knowledge: 15 }),
+    choice("仍然怀疑，但决定调查视频真伪", "verify_video", { trust: 5, knowledge: 10 })
+  ]
+);
+
+game.scenes.dark_forest_explanation = scene(
+  "叶文洁用平静而冰冷的声音向你阐述了黑暗森林理论：「宇宙社会学有两条公理：第一，生存是文明的第一需要。第二，文明不断增长和扩张，但宇宙中的物质总量保持不变。由此可以推导出——宇宙中不同文明之间必然存在不可调和的冲突。任何暴露自己位置的文明，都会被其他文明视为威胁而遭到毁灭。这就是为什么宇宙如此寂静。每一个文明都是隐藏在黑暗森林中的猎手。」",
+  [
+    choice("问她如何利用这个理论", "use_dark_forest", { knowledge: 25, trust: 10 }),
+    choice("质疑这个理论是否绝对正确", "question_dark_forest", { trust: 5, knowledge: 10 }),
+    choice("问她三体文明是否也遵循这个法则", "trisolaris_and_forest", { knowledge: 20, sanity: -10 })
+  ]
+);
+
+game.scenes.connection_to_deaths = scene(
+  "叶文洁叹了口气：「那些科学家的死，与我有关，也与我无关。他们都是在探索真相的过程中，自己发现了智子的存在。当一个物理学家发现毕生追求的自然规律可以被随意篡改时，那种绝望是毁灭性的。」她顿了顿，「但我没有告诉他们真相。我让他们自己去发现。因为只有自己发现的真相，才能真正被接受。只是我低估了真相的重量。」",
+  [
+    choice("指责她间接害死了那些人", "accuse_her", { trust: -15, knowledge: 5 }),
+    choice("理解她的做法但不同意", "understand_but_disagree", { trust: 10, knowledge: 10 }),
+    choice("问她如何帮助那些发现真相的人", "help_truth_seekers", { trust: 15, knowledge: 15 })
+  ]
+);
+
+game.scenes.leave_skeptical = scene(
+  "你转身离开叶文洁的家，但她的声音在你脑海中挥之不去。回到车上，你打开收音机，新闻正在播报：全球又有三位顶尖物理学家失踪。你握紧方向盘，心中充满了矛盾。叶文洁的话太过疯狂，但那些科学家的死却是真实的。你决定先回局里，重新审视所有证据。也许真相就藏在那些你还没有注意到的地方。",
+  [
+    choice("回到办公室重新分析案件", "reanalyze_case", { knowledge: 15, sanity: -5 }),
+    choice("去找汪淼——另一位物理学家", "find_wang_miao", { trust: 10, knowledge: 15 }),
+    choice("申请调看红岸基地的旧档案", "request_red_coast", { knowledge: 20, trust: 5 })
+  ]
+);
+
+game.scenes.sophon_details = scene(
+  "叶文洁详细解释了智子的原理：「三体文明将一个质子进行二维展开，在展开后的巨大平面上蚀刻了复杂的量子电路，然后将其折叠回微观维度。这个被改造过的质子具有超级计算能力，可以通过量子纠缠与四光年外的三体星实时通信。智子可以潜入地球上的任何粒子加速器，干扰实验结果。更可怕的是——」她压低声音，「智子无处不在。它看着我们每一个人。但它有一个弱点：它无法读取人类的思想。」",
+  [
+    choice("意识到面壁计划的可能性", "wallfacer_idea", { knowledge: 30, sanity: -10 }),
+    choice("问如何检测智子的存在", "detect_sophon", { knowledge: 20, trust: 10 }),
+    choice("问她三体舰队的具体情况", "fleet_details", { knowledge: 25, sanity: -15 })
+  ]
+);
+
+game.scenes.ask_about_eto = scene(
+  "叶文洁沉默了片刻，然后说：「是的，有一个组织——地球三体组织，简称ETO。我创立了它。但现在已经不受我控制了。」她的声音中带着悔恨，「ETO分裂成了三个派系。降临派希望三体人降临并毁灭人类；拯救派希望三体文明拯救地球；幸存派则想在三体人到来后获得优待。他们都在为三体人的入侵做准备。」她看着你，「如果你要对抗三体文明，你首先要面对的就是ETO。」",
+  [
+    choice("请求她帮助瓦解ETO", "dismantle_eto", { trust: 20, knowledge: 15 }),
+    choice("问她ETO的主要成员名单", "eto_members", { knowledge: 25, hp: -10 }),
+    choice("立即上报ETO的存在", "report_eto", { trust: 15, knowledge: 10 })
+  ]
+);
+
+game.scenes.arrest_ye = scene(
+  "你亮出证件，宣布逮捕叶文洁。但她没有任何反抗，只是平静地伸出手，让你给她戴上手铐。在警车上，她望着窗外的夜空，轻声说：「你逮捕了我，但真相不会因此消失。智子还在那里。三体舰队还在路上。而人类——还在沉睡。」她的声音中带着一种令人不安的平静，仿佛她早已看到了这一切的结局。",
+  [
+    choice("审问叶文洁获取更多情报", "interrogate_ye", { knowledge: 20, trust: -5 }),
+    choice("搜查她的住所", "search_ye_home", { knowledge: 25, sanity: -10 }),
+    choice("怀疑逮捕她是否是正确的选择", "doubt_arrest", { trust: -10, knowledge: 5 })
+  ]
+);
+
+game.scenes.deep_dive_classified = scene(
+  "你深入挖掘那份机密文件，发现了一个惊人的事实：早在冷战时期，中国就建立了一个名为「红岸」的秘密基地，专门用于搜索外星文明。文件详细记录了红岸基地的运作方式——他们利用太阳作为放大器，向宇宙广播信号。而项目的核心人物，正是一个叫叶文洁的女科学家。你突然意识到，这一切的源头，可以追溯到三十年前。",
+  [
+    choice("寻找红岸基地的旧址", "red_coast_site", { knowledge: 30, hp: -10 }),
+    choice("深入分析红岸的技术原理", "red_coast_tech", { knowledge: 25, sanity: -10 }),
+    choice("寻找红岸时期的其他幸存者", "red_coast_survivors", { trust: 15, knowledge: 15 })
+  ]
+);
+
+game.scenes.find_file_author = scene(
+  "你找到了那份机密文件的作者——一位退休的天体物理学家，名叫李铭。他住在郊区的一栋小房子里，院子里种满了向日葵。当你问起那份文件时，他的脸色变得苍白。「那是我这辈子写过的最可怕的东西。」他颤抖着说，「我花了十年时间追踪那些异常信号。它们不是自然产生的。它们来自半人马座。而且——」他压低声音，「它们有智能。那些信号在观察我们，在学习我们。」",
+  [
+    choice("请李铭协助你的调查", "li_ming_help", { knowledge: 25, trust: 15 }),
+    choice("问他是否知道叶文洁", "ask_about_ye", { knowledge: 20, sanity: -10 }),
+    choice("建议他公开自己的研究", "li_ming_public", { trust: 10, knowledge: 10 })
+  ]
+);
+
+game.scenes.report_to_un = scene(
+  "你将文件内容报告给了联合国。联合国安理会召开了紧急会议，但各国代表对此反应不一。有些人认为这是危言耸听，有些人则要求更多证据。最终，安理会决定成立一个特别调查委员会，但缺乏实质性的行动。你意识到，在真相被完全证实之前，人类社会的反应机制是缓慢而低效的。",
+  [
+    choice("继续独立调查", "END", { knowledge: 25, sanity: -10 }),
+    choice("寻找更多确凿证据", "END", { knowledge: 30, trust: 15 }),
+    choice("通过媒体施压", "END", { trust: 10, knowledge: 20 })
+  ]
+);
+
+game.scenes.question_deterrence = scene(
+  "你质疑黑暗森林威慑计划的可行性。叶文洁承认这个计划存在巨大的风险：「你说得对。威慑是一把双刃剑。一旦启动，不仅三体文明会被毁灭，地球的位置也会暴露给宇宙中其他更强大的文明。但这是我们现在唯一的筹码。」她看着你，「要么冒险威慑，要么在四百年后坐以待毙。你选择哪一个？」",
+  [
+    choice("接受威慑计划但增加安全措施", "END", { knowledge: 35, trust: 20 }),
+    choice("寻找替代方案", "END", { knowledge: 30, sanity: -15 }),
+    choice("主张与三体文明谈判", "END", { trust: 15, knowledge: 25 })
+  ]
+);
+
+// ============ ENDING SCENES ============
+
+
+game.scenes.support_deterrence = scene(
+  "你决定全力支持黑暗森林威慑计划。在接下来的日子里，你与全球最顶尖的科学家和战略家一起，秘密建立了一个能够向全宇宙广播三体坐标的系统。这个系统被命名为「引力波广播系统」，它利用引力波技术，可以在任何时刻将三体文明的位置暴露给整个宇宙。当系统最终建成的那一刻，你站在控制室里，看着屏幕上那个红色的启动按钮。你知道，这个按钮一旦按下，三体文明将被毁灭——但地球的位置也将同时暴露。这就是黑暗森林威慑的终极代价：同归于尽。",
+  [
+    choice("按下按钮，启动威慑", "END", { knowledge: 50, sanity: -30 }),
+    choice("将按钮交给联合国保管", "END", { trust: 30, knowledge: 30 }),
+    choice("等待三体舰队靠近后再决定", "END", { knowledge: 20, sanity: -10 })
+  ]
+);
+
+game.scenes.join_pdc = scene(
+  "你正式加入了行星防御理事会。在接下来的日子里，你参与制定了人类历史上最宏大的防御计划。你了解到，人类已经在月球背面建立了一个秘密的引力波发射站，作为最后的威慑手段。同时，面壁计划也在秘密推进——几位面壁者正在各自的大脑中构建对抗三体人的战略。你被分配协助其中一位面壁者，代号「破晓」。他的计划看似疯狂，但你知道，在智子的注视下，疯狂可能是唯一的理性。",
+  [
+    choice("全力协助面壁者破晓", "END", { knowledge: 40, trust: 30 }),
+    choice("同时秘密研究自己的计划", "END", { knowledge: 35, sanity: -15 }),
+    choice("建议整合所有面壁者的方案", "END", { trust: 25, knowledge: 30 })
+  ]
+);
+
+game.scenes.deception_plan = scene(
+  "你支持了王磊的欺骗计划。研究小组开始向智子输送精心设计的虚假实验数据，试图误导三体文明对地球科技水平的判断。这个计划被称为「迷雾行动」。你们在公开场合进行低水平的实验，而在绝对保密的环境下进行真正的前沿研究。智子虽然能监控一切，但它无法分辨你们故意展示的假象和隐藏的真相之间的区别。这是人类第一次在智子的监控下找到了反击的方法。",
+  [
+    choice("扩大迷雾行动的规模", "END", { knowledge: 40, trust: 20 }),
+    choice("利用迷雾掩护真正的突破性研究", "END", { knowledge: 45, sanity: -20 }),
+    choice("将迷雾行动推广到全球", "END", { trust: 30, knowledge: 35 })
+  ]
+);
+
+game.scenes.wallfacer_idea = scene(
+  "你意识到面壁计划是人类的希望。智子可以监控一切物质活动，但无法读取思想。这意味着，只要一个人的真实意图只存在于大脑中，他就可以在智子的眼皮底下策划对抗三体人的战略。你向行星防御理事会提交了面壁计划的提案。这个提案被迅速采纳，全球开始遴选面壁者。你被邀请成为面壁者之一，但你知道，成为面壁者意味着背负整个文明的命运，在孤独中前行。",
+  [
+    choice("接受成为面壁者", "END", { knowledge: 50, sanity: -30 }),
+    choice("推荐更适合的人选", "END", { trust: 35, knowledge: 30 }),
+    choice("作为面壁者的联络人", "END", { trust: 25, knowledge: 35 })
+  ]
+);
+
+game.scenes.chance_for_redemption = scene(
+  "你告诉叶文洁，虽然她犯下了不可饶恕的过错，但她掌握的信息仍然可以帮助人类。她沉默了很久，然后点了点头。在接下来的日子里，她将自己知道的所有关于三体文明的信息都告诉了你——他们的思维方式、社会结构、科技水平，以及最重要的：他们的弱点。三体人虽然科技发达，但他们不擅长欺骗和战略，因为他们的思维是透明的。这是人类最大的优势。",
+  [
+    choice("利用这些信息制定对抗策略", "END", { knowledge: 45, trust: 25 }),
+    choice("让叶文洁公开作证", "END", { trust: 20, knowledge: 30 }),
+    choice("建立基于三体弱点的心理战体系", "END", { knowledge: 40, sanity: -15 })
+  ]
+);
+
+game.scenes.trisolaran_plan = scene(
+  "叶文洁告诉你三体文明的详细计划：第一批舰队将在400年后到达地球，但在此之前，智子会彻底锁死地球的基础物理学。同时，ETO会在地球上制造混乱，破坏人类的抵抗能力。三体人的最终目标是清除所有地球人，将地球改造成适合三体人生存的环境。你听完后感到一阵寒意——这不是殖民，这是灭绝。",
+  [
+    choice("立即公开这个灭绝计划", "END", { trust: 25, knowledge: 35 }),
+    choice("制定紧急应对方案", "END", { knowledge: 40, sanity: -20 }),
+    choice("寻找三体计划中的漏洞", "END", { knowledge: 45, trust: 15 })
+  ]
+);
+
+game.scenes.why_ignored_warning = scene(
+  "叶文洁的眼中充满了痛苦：「因为我对人类绝望了。我看到了人性中最黑暗的一面——背叛、残忍、自私。我以为一个更高级的文明会带来救赎。但我错了。三体监听员冒着生命危险警告我们，说明三体文明中也有善良的个体。但文明的整体行为是冷酷的。宇宙中没有救世主。」她看着你，「现在，唯一能拯救人类的，就是人类自己。」",
+  [
+    choice("决定成为人类的希望", "END", { knowledge: 35, trust: 25 }),
+    choice("原谅叶文洁但要求她协助", "END", { trust: 20, knowledge: 30 }),
+    choice("将她的故事公之于众", "END", { trust: 15, knowledge: 35 })
+  ]
+);
+
+// ============ ADDITIONAL ENDING SCENES ============
+
+game.scenes.red_coast_files = scene(
+  "你打开了红岸档案。里面详细记录了三十年前那个秘密项目的全部内容——如何利用太阳作为放大器向宇宙广播信号，如何接收来自深空的回复。档案中夹着一张泛黄的照片：年轻的叶文洁站在巨大的射电望远镜前，眼神中充满了希望和绝望。档案的最后是一份手写的报告，字迹工整而冰冷：「信号已发送。目的地：半人马座α星。等待回复中……」你意识到，人类命运的转折点，就始于这份档案。",
+  [
+    choice("将红岸档案公之于众", "END", { trust: 20, knowledge: 35 }),
+    choice("利用红岸技术建立新的通信系统", "END", { knowledge: 40, sanity: -15 }),
+    choice("销毁档案，防止恐慌", "END", { trust: -10, knowledge: 25 })
+  ]
+);
+
+game.scenes.ask_chang_more = scene(
+  "常伟思叹了口气，点了一支烟。「红岸只是冰山一角。三十年来，有一个秘密的国际组织一直在追踪来自半人马座的信号。我们称之为『瞭望台』。瞭望台发现，那些信号越来越频繁，越来越复杂。最近，我们甚至截获了一段疑似舰队通信的信号。」他掐灭烟头，「特工，你面对的不是一起简单的案件。你面对的是人类历史上最大的危机。」",
+  [
+    choice("加入瞭望台组织", "END", { knowledge: 35, trust: 25 }),
+    choice("要求瞭望台的所有数据", "END", { knowledge: 40, sanity: -15 }),
+    choice("建议瞭望台与联合国合作", "END", { trust: 20, knowledge: 30 })
+  ]
+);
+
+game.scenes.refuse_files = scene(
+  "你拒绝了看红岸档案。有些真相，不知道也许更好。但当你回到办公室时，发现桌上多了一个没有标记的信封。里面只有一张纸条，上面写着一个地址和时间。你犹豫了一下，还是决定去看看。那个地址指向一座废弃的天文台，在那里，你遇到了几个自称是「地球抵抗军」的人。他们告诉你，他们已经知道了三体文明的存在，并且在秘密准备抵抗。",
+  [
+    choice("加入地球抵抗军", "END", { knowledge: 30, trust: 25 }),
+    choice("将抵抗军的情况报告给上级", "END", { trust: 15, knowledge: 20 }),
+    choice("独立调查，不加入任何组织", "END", { knowledge: 25, sanity: -10 })
+  ]
+);
+
+game.scenes.demand_evidence = scene(
+  "行星防御理事会的人给你看了令人信服的证据：来自半人马座方向的舰队航迹、智子干扰粒子加速器的实时数据、以及截获的三体文明通信片段。你无法再否认这一切。你意识到，人类正站在历史的十字路口。要么团结起来对抗共同的敌人，要么在无知和分裂中走向毁灭。",
+  [
+    choice("接受现实，加入防御工作", "END", { knowledge: 35, trust: 25 }),
+    choice("要求更多时间消化这些信息", "END", { knowledge: 25, sanity: -15 }),
+    choice("立即开始动员公众", "END", { trust: 20, knowledge: 30 })
+  ]
+);
+
+game.scenes.refuse_cooperation = scene(
+  "你拒绝了行星防御理事会的邀请，认为这不过是一场精心策划的阴谋。但当你离开时，你注意到街上的电子屏正在播放一条紧急新闻：全球多个天文台同时观测到半人马座方向的异常光源。科学家们确认，那是一支正在加速的舰队。你的手机响了——是常伟思。「现在你相信了吗？」他的声音中带着疲惫。你站在街头，看着周围毫不知情的人群，第一次感到了真正的恐惧。",
+  [
+    choice("立刻联系常伟思改变决定", "END", { knowledge: 30, trust: 20 }),
+    choice("用自己的方式调查真相", "END", { knowledge: 25, sanity: -15 }),
+    choice("公开揭露这个『阴谋』", "END", { trust: -20, knowledge: 15 })
+  ]
+);
+
+game.scenes.copy_recording = scene(
+  "你复制了三体监听员的录音。在实验室里，语言学家们花了三天时间分析这段录音。他们发现，三体人的语言中充满了数学结构——每一个音节都对应着一个素数。更令人震惊的是，录音中隐藏着一段加密信息。破译后，你发现那是三体文明的社会结构图，以及他们对地球的入侵计划概要。这份情报的价值无法估量。",
+  [
+    choice("将情报分享给全球科学家", "END", { trust: 25, knowledge: 35 }),
+    choice("利用情报制定针对性策略", "END", { knowledge: 40, sanity: -15 }),
+    choice("保留情报作为谈判筹码", "END", { trust: 10, knowledge: 30 })
+  ]
+);
+
+game.scenes.ask_about_trisolaris = scene(
+  "叶文洁向你描述了那个遥远的世界：「三体星是一个地狱。三颗太阳的无规律运行让文明反复毁灭和重生。三体人进化出了脱水能力——在乱纪元来临时，他们排干体内水分，变成纤维束储存起来。等到恒纪元来临，再浸泡复活。这种生存方式让他们变得极端理性和冷酷。在他们的价值观里，生存高于一切。」你听着，感到一阵寒意——一个将生存视为唯一信条的文明，会如何对待地球？",
+  [
+    choice("研究三体文明的弱点", "END", { knowledge: 40, sanity: -15 }),
+    choice("尝试与三体文明建立沟通", "END", { trust: 15, knowledge: 30 }),
+    choice("准备全面对抗", "END", { knowledge: 35, trust: 20 })
+  ]
+);
+
+game.scenes.decode_signal = scene(
+  "你成功解码了来自半人马座的信号。那是一段复杂的数学序列，包含了三体文明的基础科学知识。他们的物理学水平远超人类——他们掌握了强相互作用力材料、空间折叠技术、以及量子纠缠通信。但最让你不安的是信号末尾的一段信息，翻译过来是：「我们来了。四百个地球年后到达。做好准备。」这不是警告，这是通知。",
+  [
+    choice("公开解码结果", "END", { trust: 20, knowledge: 35 }),
+    choice("秘密研究三体科技", "END", { knowledge: 45, sanity: -20 }),
+    choice("利用这些知识加速人类科技", "END", { knowledge: 40, trust: 15 })
+  ]
+);
+
+game.scenes.notify_iau = scene(
+  "国际天文联合会震惊于你的发现。他们立即组织了全球最大的射电望远镜阵列，对半人马座方向进行联合观测。观测结果确认了你的发现——那里确实有异常信号源。联合会主席在紧急会议上宣布：「我们不是孤独的。但我们的邻居似乎不太友好。」会议决定成立一个特别委员会，专门研究应对策略。你被任命为委员会的联络官。",
+  [
+    choice("推动全球科技共享计划", "END", { trust: 30, knowledge: 30 }),
+    choice("建议建立全球防御系统", "END", { knowledge: 35, trust: 25 }),
+    choice("呼吁与三体文明和平接触", "END", { trust: 15, knowledge: 30 })
+  ]
+);
+
+game.scenes.keep_secret = scene(
+  "你决定暂时保密。在真相完全确认之前，公开只会引起恐慌。你秘密组建了一个小型研究团队，继续追踪信号。几个月后，你们有了一个惊人的发现：信号中隐藏着一种未知的数学结构，它似乎是某种超级智能的产物。你给它取名为「智子」。你意识到，这个发现将彻底改变人类对宇宙的认知。",
+  [
+    choice("在适当时机公开发现", "END", { knowledge: 35, trust: 20 }),
+    choice("继续秘密研究智子", "END", { knowledge: 45, sanity: -20 }),
+    choice("寻找志同道合的合作者", "END", { trust: 25, knowledge: 30 })
+  ]
+);
+
+game.scenes.explore_game = scene(
+  "你深入探索了三体游戏。游戏中的世界令人震撼——你经历了三体文明数十万年的历史，见证了他们在恒纪元中繁荣，在乱纪元中毁灭，然后再次重生。你看到了脱水者的城市，看到了三体人在极端环境中的坚韧。游戏结束时，一个声音对你说：「你已经了解了我们的历史。现在，做出你的选择。」你退出游戏，心中充满了前所未有的敬畏和恐惧。",
+  [
+    choice("将游戏内容报告给上级", "END", { trust: 20, knowledge: 30 }),
+    choice("寻找游戏的其他玩家", "END", { knowledge: 25, sanity: -10 }),
+    choice("深入研究游戏中的三体科技", "END", { knowledge: 40, sanity: -15 })
+  ]
+);
+
+game.scenes.find_game_dev = scene(
+  "你追踪到了三体游戏的开发者——一个匿名的国际团队。他们的服务器遍布全球，使用了最先进的加密技术。但你还是找到了一个突破口：游戏的源代码中隐藏着一个坐标，指向瑞士日内瓦的一个地址。你赶到那里，发现了一个地下实验室。实验室里空无一人，但墙上写着一行字：「欢迎来到真实的三体世界。ETO敬上。」",
+  [
+    choice("搜查实验室", "END", { knowledge: 30, hp: -10 }),
+    choice("设伏等待ETO成员", "END", { trust: 20, knowledge: 25 }),
+    choice("将实验室情况上报", "END", { trust: 25, knowledge: 20 })
+  ]
+);
+
+game.scenes.exit_report = scene(
+  "你退出了三体游戏，立即向上级报告了这个发现。常伟思听完后，表情异常严肃。「这个游戏我们追踪很久了。它似乎是ETO用来招募成员和传播三体文化的工具。」他递给你一份文件，「我们有一个卧底在ETO内部。他传回的消息显示，ETO正在策划一次大规模行动。我们需要你的帮助。」",
+  [
+    choice("参与卧底行动", "END", { knowledge: 35, trust: 25, hp: -15 }),
+    choice("负责分析ETO的情报", "END", { knowledge: 30, trust: 20 }),
+    choice("建议直接打击ETO", "END", { trust: 15, knowledge: 25 })
+  ]
+);
+
+game.scenes.how_to_atone = scene(
+  "叶文洁沉默了很久，然后说：「我无法弥补。我犯下的错误已经无法挽回。但我可以告诉你我所知道的一切——三体文明的弱点、他们的思维方式、他们的计划。」她开始详细讲述三体文明的一切。你意识到，虽然她犯下了不可饶恕的罪行，但她掌握的信息可能是人类对抗三体文明的关键。",
+  [
+    choice("利用她的信息制定计划", "END", { knowledge: 40, trust: 20 }),
+    choice("让她公开忏悔", "END", { trust: 15, knowledge: 30 }),
+    choice("将她交给国际法庭", "END", { trust: 10, knowledge: 25 })
+  ]
+);
+
+game.scenes.chance_to_fight = scene(
+  "你告诉叶文洁，虽然她犯下了大错，但人类不会坐以待毙。你描述了正在酝酿的对抗计划——面壁计划、黑暗森林威慑、科技突破计划。叶文洁听着，眼中闪过一丝希望的光芒。「也许……也许人类还有机会。」她低声说，「我会尽我所能帮助你。不是为了赎罪，而是为了我的女儿——为了所有不该死去的人。」",
+  [
+    choice("接受她的帮助", "END", { knowledge: 35, trust: 25 }),
+    choice("让她作为顾问参与", "END", { trust: 20, knowledge: 30 }),
+    choice("感谢她但婉拒", "END", { knowledge: 25, sanity: -10 })
+  ]
+);
+
+game.scenes.arrest_ye_final = scene(
+  "你逮捕了叶文洁。在审讯室里，她平静地交代了一切——红岸基地、三体文明、智子、ETO。她的证词成为了人类了解三体文明的第一手资料。虽然她犯下了叛国罪，但她的信息价值无可估量。国际社会因此召开了紧急会议，正式宣布三体文明的存在，并启动了全球防御计划。你的果断行动，让人类赢得了宝贵的准备时间。",
+  [
+    choice("推动全球防御计划", "END", { knowledge: 35, trust: 30 }),
+    choice("深入研究叶文洁提供的情报", "END", { knowledge: 40, sanity: -15 }),
+    choice("建议对叶文洁从轻处理", "END", { trust: 20, knowledge: 25 })
+  ]
+);
+
+game.scenes.military_data = scene(
+  "张将军给你看了军方所有的监测数据。屏幕上，一千多个光点排成整齐的队列，正在以恒定的加速度向地球方向移动。计算显示，它们将在四百年后到达地球。但更令人不安的是，舰队的速度还在增加——它们的科技水平远超人类想象。张将军沉重地说：「我们还有四百年。但如果我们不从现在开始准备，四百年后就是人类的末日。」",
+  [
+    choice("推动全球军事动员", "END", { trust: 25, knowledge: 30 }),
+    choice("建议发展太空防御技术", "END", { knowledge: 35, sanity: -10 }),
+    choice("呼吁全球团结一致", "END", { trust: 30, knowledge: 25 })
+  ]
+);
+
+game.scenes.emergency_summit = scene(
+  "在你的推动下，联合国召开了紧急峰会。各国代表在观看了证据后，陷入了震惊和沉默。经过激烈的辩论，大会通过了《地球防御宣言》，宣布成立「行星防御联合指挥部」，整合全球资源应对三体威胁。你被任命为指挥部的情报主管。从这一刻起，你不再是一个普通的特工——你是人类文明存亡之战中的一名战士。",
+  [
+    choice("全力投入防御工作", "END", { knowledge: 35, trust: 30 }),
+    choice("推动科技加速计划", "END", { knowledge: 40, sanity: -15 }),
+    choice("建立全球情报网络", "END", { trust: 25, knowledge: 35 })
+  ]
+);
+
+game.scenes.fleet_eta = scene(
+  "张将军看着你，缓缓说：「以他们目前的速度，四百年。但他们的科技在进步，速度可能还会提升。我们可能只有三百年的时间。」三百年。对于人类文明来说，三百年只是历史的一瞬。但对于你面前的这个人来说，三百年意味着一切。你突然意识到，你这一代人可能看不到结局——但你们的选择将决定结局。",
+  [
+    choice("为后代而战", "END", { knowledge: 30, trust: 25 }),
+    choice("推动长生技术研究", "END", { knowledge: 35, sanity: -15 }),
+    choice("建立跨代计划", "END", { trust: 20, knowledge: 35 })
+  ]
+);
+
+game.scenes.study_sophon_comms = scene(
+  "你决定研究智子的通信原理。经过数月的研究，你的团队发现了一个惊人的事实：智子虽然可以实时传输信息，但它的带宽是有限的。这意味着，三体文明无法通过智子传输太多信息。更重要的是，你们发现了一种可能干扰智子通信的方法——利用量子噪声。虽然还无法完全屏蔽智子，但至少可以降低它的监控效率。",
+  [
+    choice("继续完善干扰技术", "END", { knowledge: 45, sanity: -15 }),
+    choice("将技术分享给全球", "END", { trust: 30, knowledge: 30 }),
+    choice("利用干扰技术掩护秘密行动", "END", { knowledge: 40, trust: 20 })
+  ]
+);
+
+game.scenes.global_cooperation = scene(
+  "你主张公开真相，全球合作。在你的努力下，联合国召开了全球直播发布会，向全人类宣布了三体文明的存在和即将到来的入侵。消息传出后，世界陷入了短暂的混乱，但很快，人类展现出了前所未有的团结。各国放下了争端，全球资源被重新分配用于防御计划。你看着世界各地的人们团结在一起，第一次感到——也许人类还有希望。",
+  [
+    choice("领导全球合作计划", "END", { trust: 35, knowledge: 30 }),
+    choice("专注于科技研发", "END", { knowledge: 40, sanity: -10 }),
+    choice("维护全球稳定", "END", { trust: 30, knowledge: 25 })
+  ]
+);
+
+game.scenes.math_pattern = scene(
+  "你深入研究那个数学模式，发现它对应着一种全新的几何结构——四维空间在三维世界的投影。这个发现让整个物理学界为之震动。如果能够理解这种几何结构，人类或许可以突破智子的封锁，发展出全新的物理学。你意识到，智子虽然干扰了粒子加速器，但它无法阻止人类在理论层面的突破。",
+  [
+    choice("组建理论物理攻关团队", "END", { knowledge: 50, sanity: -20 }),
+    choice("将发现发表在国际期刊", "END", { trust: 25, knowledge: 35 }),
+    choice("秘密研究四维几何的应用", "END", { knowledge: 45, trust: 15 })
+  ]
+);
+
+game.scenes.other_insiders = scene(
+  "王磊告诉你，还有几个科学家也在独立研究这个现象。他给了你一个名单。你找到他们，发现每个人都在不同的方向上取得了进展。一个数学家发现了智子通信中的数学规律，一个密码学家破译了部分三体语言，一个生物学家在研究三体人的生理结构。你们决定联合起来，共享信息。这个松散的联盟，后来成为了人类抵抗三体文明的智慧核心。",
+  [
+    choice("正式组建研究联盟", "END", { trust: 30, knowledge: 35 }),
+    choice("为联盟争取官方支持", "END", { trust: 25, knowledge: 30 }),
+    choice("扩大联盟的规模", "END", { knowledge: 35, sanity: -10 })
+  ]
+);
+
+game.scenes.share_data = scene(
+  "你将数据提交给了国际科学界。全球的科学家们开始协作分析这些异常数据。一个月后，一个国际研究团队宣布了一个震惊世界的发现：这些干扰信号中隐藏着一种人工编码。这是人类第一次直接证明外星智慧的存在。消息公布后，全球沸腾了。虽然恐惧在蔓延，但人类也展现出了面对未知时的勇气和好奇心。",
+  [
+    choice("推动全球科学合作", "END", { trust: 30, knowledge: 30 }),
+    choice("建议成立外星文明研究机构", "END", { knowledge: 35, trust: 25 }),
+    choice("呼吁保持警惕", "END", { trust: 20, knowledge: 30 })
+  ]
+);
+
+game.scenes.write_report = scene(
+  "你花了整整一周写了一份完整的真相报告。报告详细记录了从科学家自杀案到智子干扰的全部调查过程，以及你对三体文明的推断。这份报告被提交给了联合国安理会。安理会召开了紧急闭门会议，最终决定启动「破晓计划」——一个旨在团结全人类对抗三体文明的全球性战略计划。你的报告，成为了这个计划的基石。",
+  [
+    choice("参与破晓计划的制定", "END", { knowledge: 40, trust: 30 }),
+    choice("负责破晓计划的情报工作", "END", { knowledge: 35, trust: 25 }),
+    choice("监督破晓计划的执行", "END", { trust: 30, knowledge: 30 })
+  ]
+);
+
+game.scenes.find_others = scene(
+  "你开始寻找其他可能发现真相的人。通过暗网和秘密渠道，你联系到了世界各地的一些研究者。你们组成了一个秘密网络，共享信息和资源。这个网络后来被称为「真相之眼」。通过这个网络，你发现三体文明的影响远比想象中更深——ETO已经渗透进了全球的政府、科研机构和军队。一场看不见的战争早已开始。",
+  [
+    choice("扩大真相之眼网络", "END", { knowledge: 35, trust: 25 }),
+    choice("利用网络对抗ETO", "END", { knowledge: 30, hp: -15 }),
+    choice("将网络纳入官方体系", "END", { trust: 25, knowledge: 30 })
+  ]
+);
+
+game.scenes.go_public = scene(
+  "你决定公开所有发现。在新闻发布会上，你展示了所有的证据——实验数据、信号追踪记录、杨冬的笔记。世界陷入了震惊。有人恐慌，有人怀疑，有人愤怒。但更多的人选择了面对现实。全球各地爆发了支持科学、支持团结的游行。人类历史上第一次，全人类意识到了自己是一个命运共同体。",
+  [
+    choice("引导公众情绪", "END", { trust: 30, knowledge: 25 }),
+    choice("推动全球防御立法", "END", { trust: 25, knowledge: 30 }),
+    choice("建立公众科学教育体系", "END", { knowledge: 35, trust: 20 })
+  ]
+);
+
+game.scenes.silent_leave = scene(
+  "你沉默地离开了叶文洁的家。她的故事太过沉重，你需要时间消化。在接下来的日子里，你继续调查，但叶文洁的话始终在你脑海中回响。你开始注意到一些以前忽略的细节——全球各地的不明信号、科学界的异常沉默、某些政府机构的秘密行动。你意识到，真相远比叶文洁告诉你的更加复杂。",
+  [
+    choice("重新联系叶文洁", "END", { knowledge: 30, trust: 15 }),
+    choice("独立深入调查", "END", { knowledge: 35, sanity: -15 }),
+    choice("寻求国际合作", "END", { trust: 25, knowledge: 25 })
+  ]
+);
+
+game.scenes.question_dark_forest = scene(
+  "你质疑黑暗森林理论是否绝对正确。叶文洁承认，这只是一个理论模型，但它是基于数学推导的。「也许宇宙中存在善意文明，」她说，「但我们不能把人类的命运押在这个可能性上。在证明宇宙是安全之前，我们必须假设它是危险的。」这个谨慎的态度，后来成为了人类星际战略的基本原则。",
+  [
+    choice("支持谨慎防御策略", "END", { knowledge: 30, trust: 25 }),
+    choice("尝试寻找善意文明", "END", { trust: 15, knowledge: 35 }),
+    choice("发展独立防御能力", "END", { knowledge: 35, sanity: -10 })
+  ]
+);
+
+game.scenes.trisolaris_and_forest = scene(
+  "叶文洁说：「三体文明比我们更理解黑暗森林法则。因为他们生存的环境更加残酷。在他们的世界里，生存竞争是赤裸裸的。所以他们比任何人都清楚——暴露就意味着毁灭。这也是为什么他们如此急切地要锁死我们的科技。他们害怕我们在四百年内发生技术爆炸，反过来威胁到他们。」",
+  [
+    choice("利用三体人的恐惧", "END", { knowledge: 35, trust: 20 }),
+    choice("加速人类技术发展", "END", { knowledge: 40, sanity: -15 }),
+    choice("研究三体人的心理", "END", { knowledge: 30, trust: 25 })
+  ]
+);
+
+game.scenes.accuse_her = scene(
+  "你愤怒地指责叶文洁间接害死了那些科学家。她默默地承受着你的指责，没有辩解。当你发泄完怒火后，她平静地说：「你说得对。我有罪。但现在的重点不是追究我的责任，而是如何拯救剩下的七十亿人。」她的冷静让你冷静了下来。你意识到，愤怒解决不了问题——你需要的是行动。",
+  [
+    choice("放下愤怒，专注行动", "END", { knowledge: 30, trust: 20 }),
+    choice("坚持追究她的责任", "END", { trust: -5, knowledge: 25 }),
+    choice("让她用行动赎罪", "END", { trust: 15, knowledge: 30 })
+  ]
+);
+
+game.scenes.understand_but_disagree = scene(
+  "你理解叶文洁的做法，但不同意她让科学家们独自面对真相的方式。她点了点头：「也许你是对的。也许我应该更早地告诉他们真相，给他们支持。但当时我自己也在挣扎——我花了三十年才接受这个真相。」你意识到，面对宇宙的真相，每个人都需要自己的时间和方式。",
+  [
+    choice("建立真相支持系统", "END", { trust: 25, knowledge: 30 }),
+    choice("帮助其他知情者", "END", { trust: 20, knowledge: 35 }),
+    choice("推动真相公开化", "END", { trust: 15, knowledge: 30 })
+  ]
+);
+
+game.scenes.help_truth_seekers = scene(
+  "你问叶文洁如何帮助那些发现真相的人。她给了你一份名单——上面是那些正在接近真相但还没有崩溃的科学家。你找到了他们，在他们最需要支持的时候伸出了援手。你告诉他们真相，但同时也给了他们希望。在你的帮助下，这些科学家没有走上自杀的道路，而是成为了对抗三体文明的中坚力量。",
+  [
+    choice("组建科学家支持网络", "END", { trust: 30, knowledge: 35 }),
+    choice("让他们参与防御计划", "END", { knowledge: 35, trust: 25 }),
+    choice("保护他们免受ETO侵害", "END", { trust: 25, hp: -10 })
+  ]
+);
+
+game.scenes.reanalyze_case = scene(
+  "你回到办公室，重新审视所有证据。这一次，你注意到了以前忽略的细节：所有自杀科学家的实验数据中，都出现了一个相同的异常模式——一种周期性的干扰信号。你追踪这个信号，发现它来自一个位于近地轨道的卫星。但那个卫星不属于任何国家。它属于——三体文明。",
+  [
+    choice("尝试捕获那颗卫星", "END", { knowledge: 35, hp: -15 }),
+    choice("追踪卫星的信号源", "END", { knowledge: 40, sanity: -15 }),
+    choice("将发现报告给航天机构", "END", { trust: 25, knowledge: 30 })
+  ]
+);
+
+game.scenes.find_wang_miao = scene(
+  "你找到了汪淼——一位研究纳米材料的物理学家。他告诉你，他也注意到了实验中的异常，但还没有找到原因。你向他展示了杨冬的笔记和你的发现。汪淼看完后，脸色苍白。「这……这不可能。但如果这是真的……」他深吸一口气，「我们需要帮助。我认识一些人——国际科学界的。他们可能也注意到了类似的现象。」",
+  [
+    choice("和汪淼一起联系国际科学家", "END", { trust: 30, knowledge: 30 }),
+    choice("让汪淼加入你的调查团队", "END", { knowledge: 35, trust: 20 }),
+    choice("保护汪淼免受ETO威胁", "END", { trust: 25, hp: -10 })
+  ]
+);
+
+game.scenes.request_red_coast = scene(
+  "你申请调看红岸基地的旧档案。经过层层审批，你终于拿到了那些尘封已久的文件。档案中详细记录了叶文洁当年发送信号的全过程，以及收到的回复。你看到了三体监听员那句「不要回答」的原始记录。你也看到了叶文洁在回复信号时的犹豫和最终的决断。历史在你面前展开，每一个细节都充满了悲剧性的必然。",
+  [
+    choice("公开红岸档案", "END", { trust: 20, knowledge: 35 }),
+    choice("深入研究红岸技术", "END", { knowledge: 40, sanity: -10 }),
+    choice("寻找红岸的其他参与者", "END", { trust: 25, knowledge: 30 })
+  ]
+);
+
+game.scenes.detect_sophon = scene(
+  "叶文洁告诉你，智子虽然无处不在，但可以通过特定的量子波动检测到。你组织了一个团队，开发出了世界上第一台智子探测器。当探测器启动时，屏幕上显示出了令人震惊的结果——你的办公室里就有三个智子。它们像幽灵一样漂浮在你周围，监视着你的一举一动。虽然早有心理准备，但亲眼看到这一幕还是让你感到一阵寒意。",
+  [
+    choice("利用探测器研究智子", "END", { knowledge: 45, sanity: -15 }),
+    choice("公开探测器的存在", "END", { trust: 25, knowledge: 30 }),
+    choice("开发反智子技术", "END", { knowledge: 40, trust: 20 })
+  ]
+);
+
+game.scenes.fleet_details = scene(
+  "叶文洁告诉你三体舰队的详细情况：一千艘飞船，每艘都携带了数十万脱水状态的三体人。舰队使用核聚变推进，最高速度可达光速的十分之一。舰队中还有专门的生产飞船，可以在航行中制造新的飞船和武器。最令人不安的是，舰队中携带了一种名为「水滴」的武器——一种由强相互作用力材料制造的探测器，可以轻易摧毁地球上的任何目标。",
+  [
+    choice("研究水滴的防御方法", "END", { knowledge: 40, sanity: -15 }),
+    choice("发展太空军备", "END", { trust: 25, knowledge: 30 }),
+    choice("寻找舰队航行的弱点", "END", { knowledge: 35, trust: 20 })
+  ]
+);
+
+game.scenes.dismantle_eto = scene(
+  "在叶文洁的帮助下，你开始瓦解ETO。她提供了ETO的组织结构、成员名单和行动计划。你带领特工们展开了全球范围的抓捕行动。行动持续了三个月，抓获了数千名ETO成员。但你也发现，ETO的核心成员已经提前得到了消息，逃到了地下。一场更隐蔽的战争才刚刚开始。",
+  [
+    choice("追捕ETO核心成员", "END", { knowledge: 30, hp: -20 }),
+    choice("审讯抓获的ETO成员", "END", { knowledge: 35, trust: 20 }),
+    choice("建立反ETO常设机构", "END", { trust: 30, knowledge: 25 })
+  ]
+);
+
+game.scenes.eto_members = scene(
+  "叶文洁给了你ETO的成员名单。名单上的名字让你震惊——其中包括了政界要人、科学界泰斗、商界精英。ETO的渗透远比想象中更深。你立即采取了行动，但名单上的一些人已经消失了。更糟糕的是，你怀疑名单可能已经泄露——ETO在政府内部也有卧底。一场间谍与反间谍的战争在你面前展开。",
+  [
+    choice("立即抓捕名单上的人", "END", { knowledge: 30, hp: -15 }),
+    choice("先确认名单的真实性", "END", { trust: 20, knowledge: 35 }),
+    choice("利用名单设陷阱", "END", { knowledge: 35, trust: 15 })
+  ]
+);
+
+game.scenes.report_eto = scene(
+  "你将ETO的存在报告给了上级。一场全球范围的反ETO行动迅速展开。但ETO的反击也同样迅速——他们利用媒体散布恐慌，利用黑客攻击政府系统，利用暗杀清除关键人物。人类社会的第一次全球性危机全面爆发。在这场混乱中，你意识到，对抗三体文明的战争，早在第一艘飞船到达之前就已经开始了。",
+  [
+    choice("领导反ETO行动", "END", { trust: 30, knowledge: 25, hp: -15 }),
+    choice("保护关键科学家", "END", { trust: 25, knowledge: 30 }),
+    choice("稳定社会秩序", "END", { trust: 35, knowledge: 20 })
+  ]
+);
+
+game.scenes.interrogate_ye = scene(
+  "你审问了叶文洁。她配合地交代了一切，但她的故事让你感到深深的悲哀——一个被时代伤害的人，做出了改变人类命运的选择。她的悲剧在于，她以为自己在寻找救赎，却引来了毁灭。审讯结束后，你坐在空荡荡的房间里，思考着人性的复杂和命运的无常。",
+  [
+    choice("写一份客观的报告", "END", { knowledge: 30, trust: 25 }),
+    choice("建议对叶文洁进行心理评估", "END", { trust: 20, knowledge: 25 }),
+    choice("将她的故事作为警示", "END", { knowledge: 35, sanity: -10 })
+  ]
+);
+
+game.scenes.search_ye_home = scene(
+  "你搜查了叶文洁的住所。在墙壁的夹层中，你发现了一个隐藏的保险柜。里面装着她三十年来收集的所有关于三体文明的资料——信号记录、分析报告、以及她自己的研究笔记。这些资料成为了人类了解三体文明最宝贵的财富。在笔记的最后一页，她写道：「我犯了一个错误。但也许，这个错误可以让人类更早地做好准备。」",
+  [
+    choice("将资料数字化保存", "END", { knowledge: 35, trust: 25 }),
+    choice("组织专家分析资料", "END", { knowledge: 40, sanity: -10 }),
+    choice("将资料分享给国际社会", "END", { trust: 30, knowledge: 30 })
+  ]
+);
+
+game.scenes.doubt_arrest = scene(
+  "你开始怀疑逮捕叶文洁是否正确。她虽然犯了罪，但她掌握的信息对人类的生存至关重要。你申请了特别许可，让叶文洁在软禁状态下协助研究。她同意了。在接下来的日子里，她成为了人类对抗三体文明最重要的顾问。虽然她的双手沾满了罪孽，但她的知识成为了人类生存的希望。",
+  [
+    choice("充分利用她的知识", "END", { knowledge: 40, trust: 20 }),
+    choice("限制她的活动范围", "END", { trust: 15, knowledge: 30 }),
+    choice("为她争取减刑", "END", { trust: 25, knowledge: 25 })
+  ]
+);
+
+game.scenes.red_coast_site = scene(
+  "你找到了红岸基地的旧址。废弃的基地已经被荒草覆盖，但巨大的射电望远镜依然矗立在那里，指向星空。你走进控制室，发现设备虽然老旧，但依然可以运行。在角落里，你找到了叶文洁当年的工作日志。日志中记录了她发送信号时的每一个细节，以及收到回复时的震惊和矛盾。你站在她曾经站过的地方，仰望星空，仿佛能听到三十年前那个改变一切的声音。",
+  [
+    choice("修复红岸基地", "END", { knowledge: 35, trust: 20 }),
+    choice("将红岸改建为纪念馆", "END", { trust: 25, knowledge: 25 }),
+    choice("利用红岸设备继续监听", "END", { knowledge: 40, sanity: -10 })
+  ]
+);
+
+game.scenes.red_coast_tech = scene(
+  "你深入研究了红岸的技术原理。太阳镜面反射效应的发现是一个天才的创意——利用太阳作为天然的信号放大器，可以将信号强度提升数百万倍。你意识到，同样的原理也可以用于接收信号。你组织工程师重建了红岸系统，并进行了升级。新的系统不仅可以发送信号，还可以接收来自深空的微弱信息。",
+  [
+    choice("建立全球信号网络", "END", { knowledge: 40, trust: 25 }),
+    choice("用系统监听三体通信", "END", { knowledge: 45, sanity: -15 }),
+    choice("将技术用于科学研究", "END", { trust: 25, knowledge: 35 })
+  ]
+);
+
+game.scenes.red_coast_survivors = scene(
+  "你找到了几位红岸时期的幸存者。他们都已经年迈，但记忆依然清晰。他们讲述了当年红岸基地的运作方式，以及叶文洁发送信号前后的情况。一位退休工程师说：「我们都觉得她在做一件危险的事。但没有人能阻止她。她有一种……让人无法拒绝的力量。」你意识到，叶文洁的故事，是一个关于绝望、希望和背叛的悲剧。",
+  [
+    choice("记录他们的口述历史", "END", { knowledge: 30, trust: 25 }),
+    choice("寻找更多知情者", "END", { knowledge: 35, sanity: -10 }),
+    choice("将历史公之于众", "END", { trust: 20, knowledge: 30 })
+  ]
+);
+
+game.scenes.li_ming_help = scene(
+  "李铭同意协助你的调查。他带来了自己多年的研究资料——数百页的信号分析报告、数学模型和理论推导。在他的帮助下，你终于理解了智子的工作原理：它利用量子纠缠实现超光速通信，通过高维空间展开进行微观计算。李铭说：「要对抗智子，我们需要理解高维空间。也许，答案不在粒子加速器里，而在数学中。」",
+  [
+    choice("资助李铭的研究", "END", { knowledge: 40, trust: 25 }),
+    choice("组建跨学科研究团队", "END", { knowledge: 45, sanity: -15 }),
+    choice("将李铭推荐给行星防御理事会", "END", { trust: 30, knowledge: 30 })
+  ]
+);
+
+game.scenes.ask_about_ye = scene(
+  "李铭听到叶文洁的名字时，脸色变得复杂。「叶文洁……她是我见过的最聪明也最危险的人。她在红岸的时候，我就觉得她在计划着什么。但我没想到她会真的向宇宙发送信号。」他叹了口气，「她是一个悲剧人物。被时代伤害，又伤害了整个人类。但也许，她的错误可以让人类更早地清醒。」",
+  [
+    choice("深入了解叶文洁的过去", "END", { knowledge: 35, trust: 20 }),
+    choice("询问李铭是否愿意作证", "END", { trust: 25, knowledge: 25 }),
+    choice("建议李铭写回忆录", "END", { knowledge: 30, sanity: -10 })
+  ]
+);
+
+game.scenes.li_ming_public = scene(
+  "李铭同意公开自己的研究。他的论文在国际科学界引起了轰动。虽然很多人质疑他的结论，但也有越来越多的科学家开始注意到异常现象。一个国际研究联盟因此成立，专门研究来自半人马座的信号。这个联盟后来发展成了「地球防御科学委员会」，为人类对抗三体文明提供了重要的科学支持。",
+  [
+    choice("加入科学委员会", "END", { knowledge: 40, trust: 30 }),
+    choice("为委员会提供情报支持", "END", { trust: 25, knowledge: 35 }),
+    choice("推动委员会与政府合作", "END", { trust: 30, knowledge: 30 })
+  ]
+);
+
+game.scenes.stay_and_listen = scene(
+  "你留下来继续听叶文洁的解释。她告诉你更多关于三体文明的细节——他们的历史、文化、科技。你了解到，三体文明已经存在了数十万年，经历了无数次的毁灭和重生。他们的科技在反复的文明轮回中不断积累，已经达到了人类难以企及的高度。但他们的社会也因此变得极端理性和冷酷。情感在他们看来是低效的，生存才是唯一的目标。",
+  [
+    choice("记录所有信息", "END", { knowledge: 45, sanity: -15 }),
+    choice("寻找三体文明的弱点", "END", { knowledge: 40, trust: 20 }),
+    choice("开始制定对抗计划", "END", { knowledge: 35, trust: 25 })
+  ]
+);
+
+game.scenes.take_video_evidence = scene(
+  "你带走了杨冬的视频作为证据。在实验室里，技术组对视频进行了分析，确认了它的真实性。这段视频成为了揭露真相的关键证据。当你在联合国安理会上播放这段视频时，在场的所有人都沉默了。一个年轻科学家的绝望，比任何数据都更有说服力。安理会最终全票通过了启动全球防御计划的决议。",
+  [
+    choice("推动全球防御计划", "END", { trust: 30, knowledge: 30 }),
+    choice("将视频公之于众", "END", { trust: 25, knowledge: 35 }),
+    choice("保留视频作为历史记录", "END", { knowledge: 30, sanity: -10 })
+  ]
+);
+
+game.scenes.verify_video = scene(
+  "你决定先验证视频的真伪。技术组进行了详细的鉴定，确认视频没有被篡改过。这意味着杨冬确实在死前录制了这段视频，她所说的每一个字都是真实的。你坐在办公室里，反复观看视频中杨冬绝望的脸。你意识到，真相有时候比谎言更可怕。但无论如何，你都必须面对它。",
+  [
+    choice("接受真相，开始行动", "END", { knowledge: 35, trust: 25 }),
+    choice("寻找更多证据", "END", { knowledge: 40, sanity: -15 }),
+    choice("保护视频不被泄露", "END", { trust: 20, knowledge: 30 })
+  ]
+);
+
+game.scenes.use_dark_forest = scene(
+  "你决定利用黑暗森林理论作为武器。在你的推动下，人类开始秘密建造引力波广播系统——一个可以向全宇宙广播三体坐标的系统。这个系统将成为人类最后的威慑手段。但同时，你也意识到，这个威慑是一把双刃剑。一旦启动，不仅三体文明会被毁灭，地球的位置也会暴露给宇宙中其他更强大的文明。",
+  [
+    choice("全力建设威慑系统", "END", { knowledge: 45, trust: 25 }),
+    choice("寻找威慑之外的解决方案", "END", { knowledge: 40, sanity: -15 }),
+    choice("建立威慑控制机制", "END", { trust: 30, knowledge: 35 })
+  ]
+);
+
+game.scenes.build_deterrence = scene(
+  "叶文洁详细解释了如何建立黑暗森林威慑系统。你需要一个能够向全宇宙广播的发射器，一个无法被拦截的信号，以及一个一旦启动就无法停止的机制。她建议利用引力波技术——引力波可以穿透任何物质，无法被屏蔽或干扰。你记下了所有的技术细节，开始着手组建研发团队。这是人类最后的希望，也是最危险的赌注。",
+  [
+    choice("立即启动研发", "END", { knowledge: 45, sanity: -20 }),
+    choice("先验证技术可行性", "END", { trust: 25, knowledge: 35 }),
+    choice("寻求国际合作", "END", { trust: 30, knowledge: 30 })
+  ]
+);
+
+game.scenes.infiltrate_frontier = scene(
+  "你伪装成一名对「科学之外真理」感兴趣的学者，潜入了科学边界组织。在几次聚会后，你发现这个组织实际上是ETO的外围组织。他们讨论三体文明、智子、以及人类的未来。你听到了令人不安的言论——很多人认为人类应该被更高级的文明取代。你记录下了所有参与者的信息，准备收网。",
+  [
+    choice("立即收网抓捕", "END", { knowledge: 30, hp: -15 }),
+    choice("继续潜伏获取更多情报", "END", { knowledge: 40, sanity: -15 }),
+    choice("策反其中的动摇者", "END", { trust: 25, knowledge: 35 })
+  ]
+);
+
+game.scenes.summon_shen = scene(
+  "你传唤了申玉菲。她是一位气质优雅的女性，眼神中透露出智慧的光芒。面对你的询问，她表现得非常镇定。「我知道你会来找我。」她说，「那些科学家的死，是他们自己选择的。当他们发现毕生追求的真理不过是幻象时，有些人选择了结束。」她看着你，「你想知道真相吗？真相就是——物理学不存在了。至少，在这个被智子监控的世界里，不存在了。」",
+  [
+    choice("追问她关于智子的信息", "END", { knowledge: 35, trust: 15 }),
+    choice("调查她的背景", "END", { knowledge: 30, sanity: -10 }),
+    choice("监视她的行动", "END", { trust: 20, knowledge: 25 })
+  ]
+);
+
+game.scenes.tail_shen = scene(
+  "你开始监视申玉菲。几天后，你发现她频繁出入一个废弃的工厂。你潜入工厂，发现了一个地下实验室。实验室里摆满了先进的设备，墙上贴满了星图和数学公式。在实验室的中央，有一个巨大的显示屏，上面显示着实时更新的数据——那是全球粒子加速器的运行状态。你终于找到了ETO的一个据点。",
+  [
+    choice("突袭实验室", "END", { knowledge: 35, hp: -15 }),
+    choice("安装监控设备", "END", { knowledge: 30, trust: 20 }),
+    choice("追踪实验室的数据流向", "END", { knowledge: 40, sanity: -10 })
+  ]
+);
+
+// ============ WRITE FILE ============
+
+const outputPath = path.join(__dirname, '..', 'public', 'games', 'three-body-game.json');
+fs.writeFileSync(outputPath, JSON.stringify(game, null, 2), 'utf-8');
+console.log('Game JSON generated successfully at:', outputPath);
+console.log('Total scenes:', Object.keys(game.scenes).length);
+
+
+

@@ -1,0 +1,164 @@
+/* ── Claude.ai-style Ending Screen ── */
+
+.ending-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem 1.5rem;
+  border-radius: var(--radius-lg);
+  margin: 0.5rem 0;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.ending-screen--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.ending-screen__badge-wrap {
+  overflow: hidden;
+}
+
+.ending-screen__badge {
+  display: inline-block;
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  animation: ending-badge-in 0.8s ease forwards;
+}
+
+@keyframes ending-badge-in {
+  0% { opacity: 0; transform: scale(0.5) translateY(-20px); }
+  60% { transform: scale(1.1) translateY(0); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.ending-screen__subtitle {
+  margin: 0 0 1.25rem;
+  font-size: 0.875rem;
+  opacity: 0.7;
+  animation: ending-fade-in 0.6s ease 0.3s both;
+}
+
+.ending-screen__body {
+  max-width: 28rem;
+  text-align: left;
+  margin-bottom: 1.5rem;
+}
+
+.ending-screen__narrative,
+.ending-screen__message {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  margin: 0 0 0.75rem;
+}
+
+.ending-screen__narrative {
+  animation: ending-fade-in 0.6s ease 0.5s both;
+}
+
+.ending-screen__message {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.ending-screen__message--show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.ending-screen__btn {
+  font: inherit;
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9375rem;
+  transition: all 0.2s;
+  animation: ending-fade-in 0.6s ease 0.7s both;
+}
+
+.ending-screen__btn:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.ending-screen__btn:active {
+  transform: translateY(0);
+}
+
+@keyframes ending-fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 结局类型专属样式 - subtle, Claude.ai-style */
+.ending--victory {
+  background: var(--bg-subtle);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.ending--victory .ending-screen__badge {
+  color: #16a34a;
+}
+
+.ending--defeat {
+  background: var(--bg-subtle);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.ending--defeat .ending-screen__badge {
+  color: #dc2626;
+}
+
+.ending--neutral {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+}
+
+.ending--neutral .ending-screen__badge {
+  color: var(--text-muted);
+}
+
+.ending--bad {
+  background: var(--bg-subtle);
+  border: 1px solid rgba(127, 29, 29, 0.35);
+}
+
+.ending--bad .ending-screen__badge {
+  color: #991b1b;
+}
+
+.ending--secret {
+  background: var(--bg-subtle);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.ending--secret .ending-screen__badge {
+  color: #9333ea;
+  animation: ending-secret-glow 2s ease-in-out infinite, ending-badge-in 0.8s ease forwards;
+}
+
+@keyframes ending-secret-glow {
+  0%, 100% { text-shadow: 0 0 20px rgba(168, 85, 247, 0.3); }
+  50% { text-shadow: 0 0 40px rgba(168, 85, 247, 0.6), 0 0 60px rgba(168, 85, 247, 0.2); }
+}
+
+@media (prefers-color-scheme: dark) {
+  .ending--victory .ending-screen__badge { color: #86efac; }
+  .ending--defeat .ending-screen__badge { color: #fca5a5; }
+  .ending--bad .ending-screen__badge { color: #fca5a5; }
+  .ending--secret .ending-screen__badge { color: #d8b4fe; }
+}
